@@ -5,15 +5,14 @@ import { getPosts } from "~/models/post.server";
 import { requireUserId } from "~/session.server";
 
 
-export const loader = async ({request}: LoaderFunctionArgs) => {
-  const [userId, posts] = await Promise.all([requireUserId(request),getPosts()])
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const [posts] = await Promise.all([getPosts(), requireUserId(request)]);
   return json({
-    posts: posts,
-    isLoggedIn: userId != undefined
+    posts: posts
   });
 };
 export default function PostAdmin() {
-  const { posts, isLoggedIn } = useLoaderData<typeof loader>();
+  const { posts } = useLoaderData<typeof loader>();
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -27,7 +26,7 @@ export default function PostAdmin() {
               <li key={post.slug}>
                 <Link to={post.slug}
                       className="text-blue-600 underline"
-                      >
+                >
                   {post.title}
                 </Link>
               </li>
@@ -35,7 +34,7 @@ export default function PostAdmin() {
           </ul>
         </nav>
         <main className="col-span-4 md:col-span-3">
-          <Outlet/>
+          <Outlet />
         </main>
       </div>
     </div>

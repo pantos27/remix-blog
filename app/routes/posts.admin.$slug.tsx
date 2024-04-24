@@ -3,7 +3,7 @@ import { useLoaderData } from "@remix-run/react";
 import { marked } from "marked";
 import invariant from "tiny-invariant";
 
-import { getPost, getPosts } from "~/models/post.server";
+import { getPost } from "~/models/post.server";
 import { requireUserId } from "~/session.server";
 
 
