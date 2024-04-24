@@ -1,15 +1,19 @@
-import { json } from "@remix-run/node";
+import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { Link, Outlet, useLoaderData } from "@remix-run/react";
 
 import { getPosts } from "~/models/post.server";
+import { requireUserId } from "~/session.server";
 
 
-export const loader = async  () => {
-
-  return json({ posts: await getPosts()})
-}
+export const loader = async ({request}: LoaderFunctionArgs) => {
+  const [userId, posts] = await Promise.all([requireUserId(request),getPosts()])
+  return json({
+    posts: posts,
+    isLoggedIn: userId != undefined
+  });
+};
 export default function PostAdmin() {
-  const { posts } = useLoaderData<typeof loader>();
+  const { posts, isLoggedIn } = useLoaderData<typeof loader>();
 
   return (
     <div className="mx-auto max-w-4xl">

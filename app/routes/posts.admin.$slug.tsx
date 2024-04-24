@@ -3,13 +3,14 @@ import { useLoaderData } from "@remix-run/react";
 import { marked } from "marked";
 import invariant from "tiny-invariant";
 
-import { getPost } from "~/models/post.server";
+import { getPost, getPosts } from "~/models/post.server";
+import { requireUserId } from "~/session.server";
 
 
 
 export const loader = async ({params, request}: LoaderFunctionArgs) => {
   invariant(params.slug,"slug is required")
-  const post = await getPost(params.slug);
+  const [ post] = await Promise.all([getPost(params.slug),requireUserId(request)])
   invariant(post,"post not found")
   const html = marked(post.markdown)
   return json({post, html })

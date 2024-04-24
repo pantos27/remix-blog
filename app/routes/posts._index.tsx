@@ -1,18 +1,35 @@
-import { json } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { json, LoaderFunctionArgs } from "@remix-run/node";
+import { Form, Link, useLoaderData } from "@remix-run/react";
 
 import { getPosts } from "~/models/post.server";
+import { getUserId } from "~/session.server";
 
-export const loader = async () => {
+export const loader = async ({request}: LoaderFunctionArgs) => {
+  const [userId, posts] = await Promise.all([getUserId(request),getPosts()])
   return json({
-    posts: await getPosts()
+    posts: posts,
+    isLoggedIn: userId != undefined
   });
 };
 export default function Posts() {
-  const { posts } = useLoaderData<typeof loader>();
+  const { posts, isLoggedIn } = useLoaderData<typeof loader>();
   return (
+    <div className="flex h-full min-h-screen flex-col">
+      <header className="flex items-center justify-between bg-slate-800 p-4 text-white">
+        <h1 className="text-3xl font-bold">
+          <Link to=".">Posts</Link>
+        </h1>
+        {isLoggedIn && (
+        <Form action="/logout" method="post">
+          <button
+            type="submit"
+            className="rounded bg-slate-600 px-4 py-2 text-blue-100 hover:bg-blue-500 active:bg-blue-600"
+          >
+            Logout
+          </button>
+        </Form>)}
+      </header>
     <main >
-      <h1 className="my-6 border-b-2 text-center text-3xl">{posts.length} Posts</h1>
 
       <ul>
         {posts.map((post) =>
@@ -25,9 +42,10 @@ export default function Posts() {
           </li>)
         )}
       </ul>
-      <Link to="admin" className="text-red-600 underline">
+      { isLoggedIn && (<Link to="admin" className="text-red-600 underline">
         Admin
-      </Link>
+      </Link>)}
     </main>
+    </div>
   );
 }

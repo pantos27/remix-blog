@@ -3,6 +3,7 @@ import { Form, useActionData, useNavigation } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
 import { createPost } from "~/models/post.server";
+import { useMemo } from "react";
 
 const inputClassName =
   "w-full rounded border border-gray-500 px-2 py-1 text-lg";
@@ -51,10 +52,9 @@ export default function NewPost() {
   const errors = useActionData<typeof action>();
 
   const navigation = useNavigation();
-  const isCreating = Boolean(
-    navigation.state === "submitting"
-  );
-
+  const isCreating = useMemo(() => {
+    return navigation.state === "submitting";
+  }, [navigation.state]);
   return (
     <Form method="post">
       <p>
