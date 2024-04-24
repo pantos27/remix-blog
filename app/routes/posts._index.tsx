@@ -19,15 +19,14 @@ export default function Posts() {
         <h1 className="text-3xl font-bold">
           <Link to=".">Posts</Link>
         </h1>
-        {isLoggedIn && (
-        <Form action="/logout" method="post">
+        {isLoggedIn ? <Form action="/logout" method="post">
           <button
             type="submit"
             className="rounded bg-slate-600 px-4 py-2 text-blue-100 hover:bg-blue-500 active:bg-blue-600"
           >
             Logout
           </button>
-        </Form>)}
+        </Form> : null}
       </header>
     <main >
 
@@ -42,9 +41,9 @@ export default function Posts() {
           </li>)
         )}
       </ul>
-      { isLoggedIn && (<Link to="admin" className="text-red-600 underline">
+      { isLoggedIn ? <Link to="admin" className="text-red-600 underline">
         Admin
-      </Link>)}
+      </Link> : null}
     </main>
     </div>
   );
