@@ -135,6 +135,9 @@ jobs:
       - name: 📥 Install deps
         run: npm ci
 
+      - name: ⚙️ Build
+        run: npm run build
+
       - name: 🚀 Deploy Dev
         if: ${{ github.ref == 'refs/heads/dev' }}
         run: |
