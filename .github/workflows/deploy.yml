@@ -15,6 +15,10 @@ permissions:
   actions: write
   contents: read
 
+env:
+  BRANCH_NAME: ${{ github.ref_name }}
+  SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
 jobs:
   lint:
     name: ⬣ ESLint
@@ -28,7 +32,7 @@ jobs:
         with:
           cache: npm
           cache-dependency-path: ./package.json
-          node-version: 18
+          node-version: 20
 
       - name: 📥 Install deps
         run: npm install
@@ -48,7 +52,7 @@ jobs:
         with:
           cache: npm
           cache-dependency-path: ./package.json
-          node-version: 18
+          node-version: 20
 
       - name: 📥 Install deps
         run: npm install
@@ -68,7 +72,7 @@ jobs:
         with:
           cache: npm
           cache-dependency-path: ./package.json
-          node-version: 18
+          node-version: 20
 
       - name: 📥 Install deps
         run: npm install
@@ -91,7 +95,7 @@ jobs:
         with:
           cache: npm
           cache-dependency-path: ./package.json
-          node-version: 18
+          node-version: 20
 
       - name: 📥 Install deps
         run: npm install
@@ -121,24 +125,33 @@ jobs:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v4
 
-      - name: 👀 Read app name
-        uses: SebRollen/toml-action@v1.2.0
-        id: app_name
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v4
         with:
-          file: fly.toml
-          field: app
+          cache: npm
+          cache-dependency-path: ./package.json
+          node-version: 20
 
-      - name: 🎈 Setup Fly
-        uses: superfly/flyctl-actions/setup-flyctl@1.5
+      - name: 📥 Install deps
+        run: npm ci
 
-      - name: 🚀 Deploy Staging
+      - name: 🚀 Deploy Dev
         if: ${{ github.ref == 'refs/heads/dev' }}
-        run: flyctl deploy --remote-only --build-arg COMMIT_SHA=${{ github.sha }} --app ${{ steps.app_name.outputs.value }}-staging
+        run: |
+          npx netlify deploy \
+            --dir build \
+            --site $SITE_ID \
+            --auth $API_TOKEN
         env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          API_TOKEN: ${{ secrets.NETLIFY_API_TOKEN }}
 
       - name: 🚀 Deploy Production
         if: ${{ github.ref == 'refs/heads/main' }}
-        run: flyctl deploy --remote-only --build-arg COMMIT_SHA=${{ github.sha }} --app ${{ steps.app_name.outputs.value }}
+        run: |
+          npx netlify deploy \
+            --dir build \
+            --site $SITE_ID \
+            --auth $API_TOKEN \
+            --prod
         env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          API_TOKEN: ${{ secrets.NETLIFY_API_TOKEN }}
